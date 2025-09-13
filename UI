@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mallareddy Deemed To Be University Chatbot</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0078D7 0%, #00C6FF 100%);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #333;
+  }
+
+  header {
+    background: #004080;
+    color: #fff;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  #chat-container {
+    flex: 1;
+    background: #f0f4f8;
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .message {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    line-height: 1.4;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .message.bot {
+    background: #fff;
+    color: #004080;
+    align-self: flex-start;
+    border-top-left-radius: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  .message.user {
+    background: #0078D7;
+    color: #fff;
+    align-self: flex-end;
+    border-top-right-radius: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  a {
+    color: #0078D7;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  a:hover {
+    color: #004080;
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  #input-area {
+    display: flex;
+    background: #fff;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
+  }
+
+  #user-input {
+    flex: 1;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid #0078D7;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  #user-input:focus {
+    border-color: #004080;
+  }
+
+  #send-btn {
+    background: #0078D7;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    margin-left: 1rem;
+    padding: 0 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+  }
+
+  #send-btn:hover {
+    background: #004080;
+  }
+
+  /* Scrollbar styling */
+  #chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-container::-webkit-scrollbar-track {
+    background: #e1e8f0;
+    border-radius: 4px;
+  }
+  #chat-container::-webkit-scrollbar-thumb {
+    background: #0078D7;
+    border-radius: 4px;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    header {
+      font-size: 1.2rem;
+      padding: 1rem;
+    }
+    #user-input {
+      font-size: 0.9rem;
+    }
+    #send-btn {
+      padding: 0 15px;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <header>Mallareddy Deemed To Be University - Campus Assistant 🤖</header>
+  <div id="chat-container">
+    <!-- Chat messages appear here -->
+  </div>
+  <form id="input-area">
+    <input
+      type="text"
+      id="user-input"
+      placeholder="Ask about schedules, facilities, dining, library services..."
+      autocomplete="off"
+      required
+    />
+    <button type="submit" id="send-btn">Send</button>
+  </form>
+
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const userInput = document.getElementById('user-input');
+  const form = document.getElementById('input-area');
+
+  // Predefined info from official site with clickable links using HTML anchors
+  const answers = {
+    schedules: `Mallareddy Deemed To Be University Academic Schedules:
+- Classes run Monday to Saturday.
+- Semester dates and exam schedules are updated regularly on the official website.
+- For exact timings and calendars, visit: <a href="https://www.mrec.ac.in/" target="_blank" rel="noopener noreferrer">https://www.mrec.ac.in/</a>`,
+
+    facilities: `Campus Facilities:
+- Residences: On-campus hostels for students.
+- Cafeteria: Multiple dining options.
+- Sports: Well-maintained grounds and equipment.
+- Gymnasium: Fully equipped gym.
+- Activities Center: Various extracurricular activities.
+- Transport: Reliable transport services.
+- 24/7 Wi-Fi across campus.
+- Library: Extensive academic resources.
+- Auditoriums and Seminar Rooms.
+- Center of Excellence for research.
+- Yoga and SAAC facilities.
+- CCTV Surveillance.
+- ATM and Bank facilities within campus.`,
+
+    dining: `Dining Services:
+- Various options catering to diverse tastes.
+- Nutritious, affordable meals offered on campus.
+- Specific menus can be found at campus cafeterias or on the official website.`,
+
+    "library services": `Library Services:
+- Central Library houses approx. 1.4 lakh books and thousands of journals.
+- Digital access via Delnet, IEEE, Inflibnet, etc.
+- Remote access for students and faculty.
+- Library timings: 9 AM to 6 PM on working days.
+- Borrowing rules apply; fines for late returns.
+- Reference materials and journals non-circulating.
+- "No dues" certification on clearance of dues.`,
+
+    "administrative procedures": `Administrative Procedures:
+- For admissions, fee payments, and document verification, visit the respective department or admin office.
+- Detailed procedures are on the official website.
+- Contact admin office for assistance.
+- Website: <a href="https://www.mrec.ac.in/" target="_blank" rel="noopener noreferrer">https://www.mrec.ac.in/</a>`
+  };
+
+  // Helper: match message to category
+  function getAnswer(message) {
+    const msg = message.toLowerCase();
+
+    if (/schedule|timetable|calendar|class timing|exam/i.test(msg)) {
+      return answers.schedules;
+    }
+    if (/facility|facilities|hostel|sports|gym|wifi|transport|auditorium|library resources/i.test(msg)) {
+      return answers.facilities;
+    }
+    if (/dining|canteen|food|cafeteria|meal/i.test(msg)) {
+      return answers.dining;
+    }
+    if (/library|books|journals|digital resources|library timing|library rules/i.test(msg)) {
+      return answers["library services"];
+    }
+    if (/administration|administrative|procedure|admission|fees|document verification/i.test(msg)) {
+      return answers["administrative procedures"];
+    }
+    return `Sorry, I don't have detailed info on that. Please visit the official website for more details:<br><a href="https://www.mrec.ac.in/" target="_blank" rel="noopener noreferrer">https://www.mrec.ac.in/</a>`;
+  }
+
+  // Append message to chat container with support for HTML content
+  function appendMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', sender);
+    msgDiv.innerHTML = text;  // using innerHTML to render clickable links
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Initial greeting
+  appendMessage("Hi! I'm your Mallareddy Deemed To Be University campus assistant. Ask me about schedules, facilities, dining, library, or administration.", "bot");
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    appendMessage(message, 'user');
+    userInput.value = '';
+
+    // Get answer immediately (no backend)
+    const answer = getAnswer(message);
+    appendMessage(answer, 'bot');
+
+    userInput.focus();
+  });
+
+  userInput.focus();
+</script>
+</body>
+</html>
